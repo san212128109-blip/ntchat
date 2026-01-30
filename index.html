@@ -24,9 +24,11 @@
             width: 250px; 
             padding: 5px;
             margin-bottom: 5px;
+            text-align: center;
         }
         button {
             cursor: pointer;
+            padding: 5px 15px;
         }
     </style>
 </head>
@@ -34,7 +36,7 @@
 
     <h1>Secret Chat</h1>
 
-    <p>Tomar ID: <span id="my-id" style="font-weight: bold;">Connecting...</span></p>
+    <p>Tomar ID: <span id="my-id" style="font-weight: bold; color: blue;">Connecting...</span></p>
 
     <input type="text" id="friend-id" placeholder="Bondhur ID boshao">
     <br>
@@ -42,7 +44,7 @@
 
     <div id="chat-box"></div>
 
-    <input type="text" id="message" placeholder="Message lekho...">
+    <input id="message" placeholder="Message lekho...">
     <br>
     <button onclick="sendMessage()">Send</button>
 
@@ -76,10 +78,13 @@
         function setupChat() {
             conn.on('data', (data) => {
                 const box = document.getElementById('chat-box');
-                box.innerHTML += `<p><b>Bondhu:</b> ${data}</p>`;
+                box.innerHTML += `<p style="text-align: left;"><b>Bondhu:</b> ${data}</p>`;
                 box.scrollTop = box.scrollHeight;
             });
-            alert("Connected!");
+            
+            conn.on('open', () => {
+                alert("Connected Successfully!");
+            });
         }
 
         // Message pathano
@@ -90,11 +95,11 @@
             if (conn && msg) {
                 conn.send(msg);
                 const box = document.getElementById('chat-box');
-                box.innerHTML += `<p><b>Ami:</b> ${msg}</p>`;
+                box.innerHTML += `<p style="text-align: right; color: green;"><b>Ami:</b> ${msg}</p>`;
                 msgInput.value = "";
                 box.scrollTop = box.scrollHeight;
             } else {
-                alert("Connect koro age ba message lekho!");
+                alert("Age Connect koro ba message lekho!");
             }
         }
     </script>
