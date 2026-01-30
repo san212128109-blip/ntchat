@@ -2,47 +2,107 @@
 <html>
 <head>
     <title>Secret Chat</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #fdf2f2; overflow: hidden; position: relative; min-height: 100vh; }
-        .love-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; font-weight: bold; color: rgba(248, 86, 6, 0.1); z-index: -1; white-space: nowrap; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
-        #chat { width: 300px; height: 400px; border: 1px solid #ddd; background: rgba(255,255,255,0.8); overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        input { width: 220px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; outline: none; }
-        button { padding: 10px 15px; background: #f85606; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-top: 50px;
+        }
+        #chat-box { 
+            width: 300px; 
+            height: 400px; 
+            border: 1px solid #ccc; 
+            overflow-y: scroll; 
+            padding: 10px; 
+            margin-top: 20px;
+            margin-bottom: 10px; 
+        }
+        input { 
+            width: 250px; 
+            padding: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        button {
+            cursor: pointer;
+            padding: 5px 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="love-bg">I LOVE YOU</div>
-    <h3>Bondhu Chat</h3>
-    <div id="chat"></div>
-    <div>
-        <input type="text" id="msg" placeholder="Message lekho...">
-        <button onclick="send()">Send</button>
-    </div>
+
+    <h1>Secret Chat</h1>
+
+    <p>Tomar ID: <span id="my-id" style="font-weight: bold; color: blue;">Connecting...</span></p>
+
+    <input type="text" id="friend-id" placeholder="Bondhur ID boshao">
+    <br>
+    <button onclick="connectToFriend()">Connect</button>
+
+    <div id="chat-box"></div>
+
+    <input id="message" placeholder="Message lekho...">
+    <br>
+    <button onclick="sendMessage()">Send</button>
 
     <script>
-        const ably = new Ably.Realtime('8O7Y_w.7VvC-w:9S5_W6U9U0N0T1S2');
-        const channel = ably.channels.get('permanent-love-room');
+        const peer = new Peer();
+        let conn;
 
-        channel.subscribe('message', (msg) => {
-            const chat = document.getElementById('chat');
-            const isMe = msg.data.user === "Bondhu";
-            chat.innerHTML += `<div style="text-align: ${isMe ? 'right' : 'left'}; margin-bottom: 8px;">
-                <span style="background: ${isMe ? '#ffe5d9' : '#eee'}; padding: 5px 10px; border-radius: 8px; display: inline-block;">
-                    <b>${msg.data.user}:</b> ${msg.data.text}
-                </span>
-            </div>`;
-            chat.scrollTop = chat.scrollHeight;
+        // Nijer ID generate hole screen-e dekhabe
+        peer.on('open', (id) => {
+            document.getElementById('my-id').innerText = id;
         });
 
-        function send() {
-            const input = document.getElementById('msg');
-            if(input.value.trim()) {
-                channel.publish('message', { user: "Bondhu", text: input.value });
-                input.value = '';
+        // Keu connect korte chaile connection accept kora
+        peer.on('connection', (connection) => {
+            conn = connection;
+            setupChat();
+        });
+
+        // Bondhur ID diye connect kora
+        function connectToFriend() {
+            const friendID = document.getElementById('friend-id').value;
+            if (friendID) {
+                conn = peer.connect(friendID);
+                setupChat();
+            } else {
+                alert("Bondhur ID boshao!");
+            }
+        }
+
+        // Chat receive korar function
+        function setupChat() {
+            conn.on('data', (data) => {
+                const box = document.getElementById('chat-box');
+                box.innerHTML += `<p style="text-align: left;"><b>Bondhu:</b> ${data}</p>`;
+                box.scrollTop = box.scrollHeight;
+            });
+            
+            conn.on('open', () => {
+                alert("Connected Successfully!");
+            });
+        }
+
+        // Message pathano
+        function sendMessage() {
+            const msgInput = document.getElementById('message');
+            const msg = msgInput.value;
+            
+            if (conn && msg) {
+                conn.send(msg);
+                const box = document.getElementById('chat-box');
+                box.innerHTML += `<p style="text-align: right; color: green;"><b>Ami:</b> ${msg}</p>`;
+                msgInput.value = "";
+                box.scrollTop = box.scrollHeight;
+            } else {
+                alert("Age Connect koro ba message lekho!");
             }
         }
     </script>
+
 </body>
 </html>
