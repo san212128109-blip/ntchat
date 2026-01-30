@@ -1,56 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - Love Panel</title>
+    <title>Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { background-color: #0f172a; overflow: hidden; position: relative; }
+        body { background-color: #0f172a; position: relative; overflow: hidden; }
         .love-bg {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 10rem; font-weight: 900; color: rgba(255, 20, 147, 0.15);
-            white-space: nowrap; z-index: -1; animation: heartbeat 2s infinite ease-in-out;
+            font-size: 8rem; font-weight: 900; color: rgba(255, 20, 147, 0.1);
+            z-index: -1; pointer-events: none; animation: pulse 2s infinite;
         }
-        @keyframes heartbeat { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.1); } }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-5">
+<body class="flex items-center justify-center min-h-screen">
     <div class="love-bg">I LOVE YOU</div>
     
-    <div class="w-full max-w-md bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20">
-        <h2 class="text-white text-xl font-bold mb-4 text-center">Admin Reply Panel</h2>
-        <button onclick="approve()" class="bg-pink-600 hover:bg-pink-700 text-white w-full py-2 rounded-lg font-bold mb-4 transition shadow-pink-500/50 shadow-lg">
-            Approve Connection ❤️
-        </button>
-        <div id="chat-box" class="h-64 bg-black/20 rounded-lg p-3 overflow-y-auto mb-4 flex flex-col gap-2 border border-white/10 text-white text-sm"></div>
+    <div class="w-full max-w-md bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-2xl">
+        <button onclick="approve()" class="bg-pink-600 text-white w-full py-2 rounded-lg font-bold mb-4">Approve Chat ❤️</button>
+        <div id="chat-box" class="h-64 bg-black/20 rounded p-3 overflow-y-auto mb-4 flex flex-col gap-2 text-white text-sm"></div>
         <div class="flex gap-2">
-            <input id="msg" type="text" placeholder="Reply..." class="flex-1 p-2 rounded-lg bg-white/20 text-white outline-none">
-            <button onclick="send()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 rounded-lg font-bold">Send</button>
+            <input id="admin-msg" type="text" placeholder="Reply..." class="flex-1 p-2 rounded bg-white/20 text-white outline-none">
+            <button onclick="send()" class="bg-blue-600 text-white px-4 rounded font-bold">Send</button>
         </div>
     </div>
 
     <script>
         const ably = new Ably.Realtime('8O7Y_w.7VvC-w:9S5_W6U9U0N0T1S2');
-        const channel = ably.channels.get('chat-channel');
+        const channel = ably.channels.get('chat-room');
 
-        function approve() {
-            channel.publish('approval', 'APPROVED');
-            alert("Approve hoye geche! Ebar kotha bolo.");
-        }
+        function approve() { channel.publish('approval', 'APPROVED'); alert("Bondhu ebar message pathate parbe!"); }
 
         channel.subscribe('chat', (msg) => {
             const chatBox = document.getElementById('chat-box');
-            const isMe = msg.data.role === 'Admin';
-            chatBox.innerHTML += `<div class="p-2 rounded-lg max-w-[85%] ${isMe ? 'bg-pink-500 self-end' : 'bg-gray-600 self-start'}"><b>${msg.data.role}:</b> ${msg.data.text}</div>`;
+            const isMe = msg.data.sender === "Admin";
+            chatBox.innerHTML += `<div class="p-2 rounded ${isMe ? 'bg-pink-500 self-end' : 'bg-gray-600 self-start'}">${msg.data.sender}: ${msg.data.text}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
         });
 
         function send() {
-            const input = document.getElementById('msg');
-            if(input.value.trim() !== "") {
-                channel.publish('chat', { role: 'Admin', text: input.value });
-                input.value = '';
+            const input = document.getElementById('admin-msg');
+            if(input.value) {
+                channel.publish('chat', { sender: "Admin", text: input.value });
+                input.value = "";
             }
         }
     </script>
