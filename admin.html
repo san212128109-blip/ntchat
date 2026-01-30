@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard - All Chats</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .chat-container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .msg { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .sender { font-weight: bold; color: #f85606; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Sokol Chat History</h2>
+        <div id="admin-chat-box">Loading messages...</div>
+    </div>
 
+    <script>
+        // Firebase Config (Tomar Firebase theke eikhane bosiye nite hobe)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Shob message dekhar jonno
+        db.ref("all_messages").on("value", (snapshot) => {
+            const box = document.getElementById('admin-chat-box');
+            box.innerHTML = "";
+            snapshot.forEach((child) => {
+                const data = child.val();
+                box.innerHTML += `
+                    <div class="msg">
+                        <span class="sender">${data.sender}:</span> ${data.text}
+                    </div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+    </script>
+</body>
+</html>
