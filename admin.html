@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat Box</title>
+    <title>Admin Panel</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #chat { width: 300px; height: 400px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        input { width: 220px; padding: 8px; }
-        button { padding: 8px 15px; background: #f85606; color: white; border: none; cursor: pointer; border-radius: 3px; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #0f172a; color: white; overflow: hidden; position: relative; }
+        .love-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 6rem; font-weight: bold; color: rgba(255, 20, 147, 0.1); z-index: -1; white-space: nowrap; }
+        #chat { width: 300px; height: 400px; border: 1px solid #444; background: rgba(255,255,255,0.1); overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        input { width: 220px; padding: 8px; border-radius: 3px; border: none; }
+        button { padding: 8px 15px; background: #e91e63; color: white; border: none; cursor: pointer; border-radius: 3px; }
     </style>
 </head>
 <body>
-    <h3>Secret Chat</h3>
+    <div class="love-bg">I LOVE YOU</div>
+    <h3>Admin Chat</h3>
     <div id="chat"></div>
     <div>
-        <input type="text" id="msg" placeholder="Message lekho...">
+        <input type="text" id="msg" placeholder="Reply koro...">
         <button onclick="send()">Send</button>
     </div>
 
@@ -24,7 +26,7 @@
 
         channel.subscribe('message', (msg) => {
             const chat = document.getElementById('chat');
-            const isMe = msg.data.user === "Bondhu";
+            const isMe = msg.data.user === "Admin";
             chat.innerHTML += `<p style="text-align: ${isMe ? 'right' : 'left'}"><b>${msg.data.user}:</b> ${msg.data.text}</p>`;
             chat.scrollTop = chat.scrollHeight;
         });
@@ -32,7 +34,7 @@
         function send() {
             const input = document.getElementById('msg');
             if(input.value) {
-                channel.publish('message', { user: "Bondhu", text: input.value });
+                channel.publish('message', { user: "Admin", text: input.value });
                 input.value = '';
             }
         }
