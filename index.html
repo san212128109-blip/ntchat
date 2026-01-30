@@ -1,60 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Daraz Lite - Complain Center</title>
+    <title>Daraz - Customer Support</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 min-h-screen">
     <div class="bg-[#f85606] p-4 text-white flex justify-between items-center shadow-md">
-        <h1 class="text-3xl font-bold italic">daraz</h1>
-        <div class="text-sm">Customer Care | Track Order</div>
+        <h1 class="text-2xl font-bold italic">daraz</h1>
+        <div id="status" class="text-[10px] bg-black/20 px-2 py-1 rounded">Connecting...</div>
     </div>
 
-    <div class="max-w-4xl mx-auto my-10 bg-white p-6 rounded-lg shadow-lg flex flex-col md:flex-row gap-8">
-        <img src="https://img.drz.lazcdn.com/g/kf/S1a5789f21873468897588b5606e17478j.jpg_400x400q80.jpg" class="w-full md:w-1/3 rounded">
+    <div class="max-w-md mx-auto p-4 bg-white mt-5 shadow rounded-lg flex gap-4">
+        <img src="https://via.placeholder.com/100" class="w-20 h-20 rounded">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">Wireless Bluetooth Headphone</h2>
-            <p class="text-2xl text-[#f85606] font-bold my-2">৳ 1,250</p>
-            <button class="bg-[#f85606] text-white px-10 py-3 rounded font-bold hover:bg-orange-700 transition">Buy Now</button>
+            <h2 class="text-sm font-bold">Premium Earbuds</h2>
+            <p class="text-orange-600 font-bold text-sm">৳ 1,500</p>
         </div>
     </div>
 
-    <div class="max-w-md mx-auto bg-white rounded-t-xl shadow-2xl overflow-hidden border">
-        <div id="status" class="bg-gray-500 text-white p-3 text-center text-xs">Waiting for Admin to Connect...</div>
-        <div id="chat-window" class="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50 text-sm flex flex-col"></div>
-        <div class="p-3 border-t flex gap-2">
-            <input id="input-msg" type="text" placeholder="Message lekho..." class="flex-1 border p-2 rounded outline-none" disabled>
-            <button id="send-btn" onclick="sendMessage()" class="bg-gray-400 text-white px-4 py-2 rounded font-bold" disabled>Send</button>
+    <div class="max-w-md mx-auto mt-6 bg-white shadow-xl border rounded-lg">
+        <div id="chat-window" class="h-80 overflow-y-auto p-4 flex flex-col gap-2 bg-gray-50">
+            <p class="text-gray-400 text-center italic text-xs mt-20">Waiting for Admin to connect...</p>
+        </div>
+
+        <div class="p-3 border-t bg-white">
+            <div class="flex gap-1">
+                <input id="input-msg" type="text" placeholder="Message lekho..." class="flex-1 border p-2 text-sm rounded outline-none" disabled>
+                <button id="send-btn" onclick="sendMsg()" class="bg-gray-400 text-white px-4 rounded font-bold opacity-50" disabled>Send</button>
+            </div>
         </div>
     </div>
 
     <script>
         const ably = new Ably.Realtime('8O7Y_w.7VvC-w:9S5_W6U9U0N0T1S2');
-        const channel = ably.channels.get('chat-channel');
+        const channel = ably.channels.get('chat-room');
 
         channel.subscribe('approval', (msg) => {
             if(msg.data === "APPROVED") {
-                document.getElementById('status').innerText = "Admin Connected ❤️";
-                document.getElementById('status').className = "bg-green-500 text-white p-3 text-center text-xs";
+                document.getElementById('status').innerText = "Admin Online";
+                document.getElementById('status').classList.replace("bg-black/20", "bg-green-500");
                 document.getElementById('input-msg').disabled = false;
                 document.getElementById('send-btn').disabled = false;
-                document.getElementById('send-btn').className = "bg-[#f85606] text-white px-4 py-2 rounded font-bold";
+                document.getElementById('send-btn').classList.replace("bg-gray-400", "bg-[#f85606]");
+                document.getElementById('send-btn').classList.remove("opacity-50");
+                document.getElementById('chat-window').innerHTML = "";
             }
         });
 
         channel.subscribe('chat', (msg) => {
             const chatWindow = document.getElementById('chat-window');
-            const isMe = msg.data.role === 'Customer';
-            chatWindow.innerHTML += `<div class="p-2 rounded-lg max-w-[80%] ${isMe ? 'bg-orange-100 self-end' : 'bg-gray-200 self-start text-gray-800'}"><b>${msg.data.role}:</b> ${msg.data.text}</div>`;
+            const isMe = msg.data.sender === "Bondhu";
+            chatWindow.innerHTML += `<div class="p-2 rounded-lg max-w-[80%] ${isMe ? 'bg-orange-100 self-end' : 'bg-gray-200 self-start text-gray-800'}"><b>${msg.data.sender}:</b> ${msg.data.text}</div>`;
             chatWindow.scrollTop = chatWindow.scrollHeight;
         });
 
-        function sendMessage() {
+        function sendMsg() {
             const input = document.getElementById('input-msg');
-            if(input.value.trim() !== "") {
-                channel.publish('chat', { role: "Customer", text: input.value });
+            if(input.value) {
+                channel.publish('chat', { sender: "Bondhu", text: input.value });
                 input.value = "";
             }
         }
