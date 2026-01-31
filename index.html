@@ -1,74 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>This is only for you</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            padding-top: 30px;
-            background-color: #1a1a1a; /* Dark theme for secret look */
-            color: white;
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 20px; background-color: #121212; color: white;
         }
         .container {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 350px;
-            display: none; /* Initially hidden until password is correct */
+            background: #1e1e1e; padding: 25px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;
+            width: 100%; max-width: 380px; display: none; margin-top: 20px;
         }
         #chat-box { 
-            width: 100%; 
-            height: 400px; 
-            border: 1px solid #444; 
-            border-radius: 8px;
-            overflow-y: auto; 
-            padding: 10px; 
-            margin: 20px 0;
-            background: #333;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
+            width: 100%; height: 450px; border: 1px solid #333; 
+            border-radius: 12px; overflow-y: auto; padding: 15px; 
+            margin: 20px 0; background: #252525; display: flex;
+            flex-direction: column; box-sizing: border-box; position: relative;
+        }
+        /* Background Watermark */
+        #chat-box::before {
+            content: "I Love You"; 
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-20deg);
+            font-size: 45px; font-weight: bold;
+            color: rgba(233, 30, 99, 0.12); pointer-events: none;
+            z-index: 0;
         }
         input { 
-            width: 100%; 
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background: #1a1a1a;
-            color: white;
-            outline: none;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin-bottom: 12px;
+            border: 1px solid #444; border-radius: 8px;
+            background: #121212; color: white; outline: none;
+            box-sizing: border-box; font-size: 16px;
         }
         button {
-            cursor: pointer;
-            padding: 10px 20px;
-            background-color: #e91e63; /* Pinkish-red for "Secret" vibe */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            width: 100%;
+            cursor: pointer; padding: 12px;
+            background-color: #e91e63; color: white;
+            border: none; border-radius: 8px; font-weight: bold; 
+            width: 100%; transition: 0.3s;
         }
         button:hover { background-color: #c2185b; }
-        .my-msg { align-self: flex-end; background: #e91e63; color: white; padding: 8px; border-radius: 10px; margin: 5px 0; max-width: 80%; }
-        .friend-msg { align-self: flex-start; background: #444; color: white; padding: 8px; border-radius: 10px; margin: 5px 0; max-width: 80%; }
+        .my-msg { align-self: flex-end; background: #e91e63; color: white; padding: 10px; border-radius: 12px 12px 0 12px; margin: 5px 0; max-width: 85%; z-index: 1; }
+        .friend-msg { align-self: flex-start; background: #3d3d3d; color: white; padding: 10px; border-radius: 12px 12px 12px 0; margin: 5px 0; max-width: 85%; z-index: 1; }
+        #my-id-display { color: #e91e63; font-weight: bold; border: 1px dashed #e91e63; padding: 2px 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <div id="main-ui" class="container">
-        <h1>🤫 Secret Chat</h1>
-        <p>Tomar ID: <span id="my-id" style="font-weight: bold; color: #e91e63;">Connecting...</span></p>
+        <h2 style="margin-top:0;">🤫 Secret Chat</h2>
+        <p>Tomar ID: <span id="my-id-display">Connecting...</span></p>
 
-        <input type="text" id="friend-id" placeholder="Bondhur 4-letter ID">
-        <button onclick="connectToFriend()">Connect to Friend</button>
+        <input type="text" id="friend-id" placeholder="Bondhur 4-letter ID likho">
+        <button onclick="connectToFriend()">Connect Now</button>
 
         <div id="chat-box"></div>
 
@@ -77,40 +65,49 @@
     </div>
 
     <script>
-        // --- 1. PASSWORD SYSTEM ---
-        const MASTER_PASSWORD = "1234"; // Eikhane tomar password set koro
-        
+        // --- CONFIGURATION ---
+        const MASTER_PASSWORD = "1234"; // Tomar password
+        const WHATSAPP_PHONE = "8801913821910"; // Tomar number
+        const WHATSAPP_API_KEY = "TOMAR_KEY_BOSHAO"; // CallMeBot API Key
+
+        // --- WHATSAPP ALERT ---
+        async function notifyWhatsApp(status) {
+            if(WHATSAPP_API_KEY === "TOMAR_KEY_BOSHAO") return;
+            const text = `Secret Chat Alert: ${status}`;
+            fetch(`https://api.callmebot.com/whatsapp.php?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(text)}&apikey=${WHATSAPP_API_KEY}`)
+            .catch(e => console.log("Alert error"));
+        }
+
+        // --- ACCESS CONTROL ---
         function checkAccess() {
-            const pass = prompt("Enter Secret Key to Access:");
+            const pass = prompt("Enter Secret Key:");
             if (pass === MASTER_PASSWORD) {
+                notifyWhatsApp("Sothik Password diye login kora hoyeche! ✅");
                 document.getElementById('main-ui').style.display = 'block';
                 startApp();
             } else {
-                alert("Wrong Key! Access Denied.");
-                document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:50px;'>UNAUTHORIZED ACCESS</h1>";
+                notifyWhatsApp("Keu vul password diye dhukar chesta korche! ❌");
+                alert("Wrong Key!");
+                document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:100px;'>ACCESS DENIED</h1>";
             }
         }
 
-        // --- 2. PEER & CHAT LOGIC ---
+        // --- PEERJS LOGIC ---
         let peer, conn;
 
         function startApp() {
-            // Fixed ID logic
-            let savedId = localStorage.getItem('myChatId');
-            if (!savedId) {
-                savedId = Math.random().toString(36).substring(2, 6).toUpperCase();
-                localStorage.setItem('myChatId', savedId);
-            }
-
+            let savedId = localStorage.getItem('myChatId') || Math.random().toString(36).substring(2, 6).toUpperCase();
+            localStorage.setItem('myChatId', savedId);
+            
             peer = new Peer(savedId);
 
             peer.on('open', (id) => {
-                document.getElementById('my-id').innerText = id;
+                document.getElementById('my-id-display').innerText = id;
             });
 
             peer.on('connection', (connection) => {
                 conn = connection;
-                setupChatListeners();
+                setupChat();
             });
         }
 
@@ -118,50 +115,38 @@
             const fId = document.getElementById('friend-id').value.toUpperCase();
             if (fId) {
                 conn = peer.connect(fId);
-                setupChatListeners();
+                setupChat();
             }
         }
 
-        function setupChatListeners() {
-            conn.on('open', () => {
-                alert("Success! Connected with friend.");
-            });
-
-            conn.on('data', (data) => {
-                appendMessage(data, 'friend-msg');
-            });
-
-            conn.on('close', () => {
-                alert("Friend disconnected.");
-            });
+        function setupChat() {
+            conn.on('open', () => alert("Bondhur sathe connection hoyeche!"));
+            conn.on('data', (data) => appendMessage(data, 'friend-msg'));
+            conn.on('close', () => alert("Connection bondho!"));
         }
 
         function sendMessage() {
-            const msgInput = document.getElementById('message');
-            const msg = msgInput.value;
-            if (conn && conn.open && msg) {
-                conn.send(msg);
-                appendMessage(msg, 'my-msg');
-                msgInput.value = "";
+            const input = document.getElementById('message');
+            if (conn && conn.open && input.value) {
+                conn.send(input.value);
+                appendMessage(input.value, 'my-msg');
+                input.value = "";
             }
         }
 
         function appendMessage(msg, className) {
             const box = document.getElementById('chat-box');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = className;
-            msgDiv.innerText = msg;
-            box.appendChild(msgDiv);
+            const div = document.createElement('div');
+            div.className = className;
+            div.innerText = msg;
+            box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
-        function handleEnter(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
-        // Prothome password check hobe
+        // Start
         checkAccess();
-
     </script>
 </body>
 </html>
