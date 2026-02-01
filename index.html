@@ -3,70 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secret Hub Pro</title>
+    <title>Secret Node Final</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        :root { --wa-dark: #0b141a; --wa-header: #202c33; --wa-blue: #00a884; --my: #005c4b; --fr: #202c33; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { 
-            margin: 0; padding: 0; background: var(--wa-dark); color: #e9edef;
-            font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        :root { --wa-green: #00a884; --dark: #0b141a; --header: #202c33; --my: #005c4b; --fr: #202c33; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        body, html { 
+            height: 100%; width: 100%; position: fixed;
+            background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif;
             background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
             background-size: cover; background-blend-mode: overlay;
         }
-        #login { position: fixed; inset: 0; background: var(--wa-dark); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #app { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; background: rgba(11, 20, 26, 0.9); border-radius: 10px; }
+
+        #login { position: fixed; inset: 0; background: var(--dark); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        header { background: var(--wa-header); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        #app { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; background: rgba(11,20,26,0.9); border-radius: 10px; }
+
+        header { background: var(--header); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
         
-        .msg { padding: 8px 12px; border-radius: 12px; max-width: 85%; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); line-height: 1.4; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 80px; }
+        
+        .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
         .my { align-self: flex-end; background: var(--my); border-bottom-right-radius: 2px; }
         .fr { align-self: flex-start; background: var(--fr); border-bottom-left-radius: 2px; }
+
+        .input-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto;
+            background: var(--header); padding: 10px; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5); z-index: 200;
+        }
         
-        .bar { background: var(--wa-header); padding: 8px; display: flex; align-items: center; gap: 8px; }
-        input { flex: 1; background: #2a3942; border: none; border-radius: 20px; padding: 10px 15px; color: #fff; font-size: 16px; }
-        .btn-c { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--wa-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+        input#m-in { flex: 1; background: #2a3942; border: none; border-radius: 25px; padding: 12px 18px; color: #fff; font-size: 16px; }
+        
+        .circle-btn { width: 48px; height: 48px; border-radius: 50%; border: none; background: var(--wa-green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; flex-shrink: 0; }
         #v-btn.rec { background: #ea4335; animation: pulse 1s infinite; }
 
-        #call-ui { position: fixed; inset: 0; background: rgba(11, 20, 26, 0.95); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--wa-blue); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .end-btn { background: #ea4335; border: none; padding: 12px 30px; border-radius: 25px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #call-ui { position: fixed; inset: 0; background: #0b141a; z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .end-call { background: #ea4335; border: none; padding: 15px 40px; border-radius: 30px; color: white; font-weight: bold; margin-top: 50px; cursor: pointer; }
+        
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
     </style>
 </head>
 <body>
 
 <div id="login">
-    <h3 style="color: var(--wa-blue)">Secret Access</h3>
-    <input type="password" id="pw" placeholder="••••••••" style="text-align: center; margin-bottom: 15px; width: 220px;">
-    <button onclick="auth()" class="btn-c" style="width: 100px; border-radius: 8px;">Enter</button>
+    <h3 style="margin-bottom:20px; color:var(--wa-green);">Secret Hub</h3>
+    <input type="password" id="pw" placeholder="••••••" style="padding:15px; border-radius:10px; border:none; width:220px; text-align:center; background:#2a3942; color:#fff;">
+    <button onclick="auth()" class="circle-btn" style="width:auto; padding:0 30px; border-radius:10px; margin-top:15px; font-size:16px;">Enter</button>
 </div>
 
 <div id="call-ui">
-    <div class="avatar">👤</div>
-    <h2 id="call-label">Calling...</h2>
-    <button class="end-btn" onclick="hangup()">End Call</button>
+    <div style="width:120px; height:120px; background:var(--wa-green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:50px;">👤</div>
+    <h2 id="call-info" style="margin-top:20px;">Calling...</h2>
+    <button onclick="hangup()" class="end-call">End Call</button>
 </div>
 
 <div id="app">
     <header>
-        <div><b style="color: var(--wa-blue)">Secret Node</b><div id="id-show" style="font-size: 10px; color: #8696a0;">ID: ...</div></div>
-        <button onclick="startCall()" style="background:none; border:none; font-size: 20px; color: var(--wa-blue); cursor:pointer;">📞</button>
+        <div><b style="color:var(--wa-green);">Private Hub</b><div id="p-status" style="font-size:10px; color:#8696a0;">Initializing...</div></div>
+        <button onclick="makeCall()" style="background:none; border:none; font-size:24px; cursor:pointer;">📞</button>
     </header>
-    
-    <div style="padding: 10px; display: flex; gap: 5px; background: rgba(0,0,0,0.2);">
-        <input type="text" id="t-id" placeholder="Friend's ID" style="font-size: 13px;">
-        <button onclick="link()" class="btn-c" style="width: auto; padding: 0 15px; border-radius: 5px; height: 35px; font-size: 13px;">Link</button>
+
+    <div style="padding:10px; display:flex; gap:5px; background:rgba(0,0,0,0.3);">
+        <input type="text" id="fid" placeholder="Friend's ID" style="padding:10px; border-radius:5px; flex:1; background:#111b21; border:none; color:#fff; font-size:13px;">
+        <button onclick="link()" style="background:var(--wa-green); border:none; padding:0 15px; border-radius:5px; color:#fff; font-size:13px; font-weight:bold;">Link</button>
     </div>
 
     <div id="chat-box"></div>
-    <div id="typing" style="padding: 5px 15px; font-size: 11px; color: #00a884; visibility: hidden;">typing...</div>
 
-    <div class="bar">
-        <button id="v-btn" class="btn-c" style="background: #54656f;">🎤</button>
-        <input type="text" id="m-in" placeholder="Message..." oninput="isTyping()">
-        <button onclick="send()" class="btn-c">🚀</button>
+    <div class="input-bar">
+        <button id="v-btn" class="circle-btn" style="background:#54656f;">🎤</button>
+        <input type="text" id="m-in" placeholder="Message..." autocomplete="off">
+        <button onclick="send()" class="circle-btn">🚀</button>
     </div>
 </div>
 
@@ -78,48 +87,51 @@
         if(document.getElementById('pw').value === "1234") {
             document.getElementById('login').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            setup();
-        } else { alert("Access Denied"); }
+            init();
+        } else { alert("Wrong Password!"); }
     }
 
-    function setup() {
-        let id = localStorage.getItem('pid') || Math.random().toString(36).substring(2,6).toUpperCase();
-        localStorage.setItem('pid', id);
+    function init() {
+        let id = localStorage.getItem('s_pid') || Math.random().toString(36).substring(2,6).toUpperCase();
+        localStorage.setItem('s_pid', id);
         peer = new Peer(id);
-        peer.on('open', (id) => {
-            document.getElementById('id-show').innerText = "My ID: " + id;
-            let last = localStorage.getItem('last-f');
-            if(last) { document.getElementById('t-id').value = last; link(); }
+
+        peer.on('open', (myId) => {
+            document.getElementById('p-status').innerText = "My ID: " + myId;
+            let last = localStorage.getItem('last_f');
+            if(last) { document.getElementById('fid').value = last; link(); }
         });
-        peer.on('connection', c => { conn = c; listen(); });
-        peer.on('call', c => {
+
+        peer.on('connection', c => { conn = c; handleConn(); });
+
+        peer.on('call', call => {
             ring.play();
-            if(confirm("Incoming Call...")) {
+            if(confirm("Answer Incoming Call?")) {
                 ring.pause();
                 navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-                    activeCall = c; lStream = s;
+                    activeCall = call; lStream = s;
                     document.getElementById('call-ui').style.display = 'flex';
-                    c.answer(s);
-                    c.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-                    c.on('close', () => hangupUI());
-                    c.on('error', () => hangupUI());
+                    call.answer(s);
+                    call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
+                    call.on('close', () => hangupUI());
+                    call.on('error', () => hangupUI());
                 });
             } else { ring.pause(); }
         });
     }
 
     function link() {
-        let tid = document.getElementById('t-id').value.toUpperCase();
-        if(tid) { localStorage.setItem('last-f', tid); conn = peer.connect(tid); listen(); }
+        let tid = document.getElementById('fid').value.toUpperCase();
+        if(tid) { localStorage.setItem('last_f', tid); conn = peer.connect(tid); handleConn(); }
     }
 
-    function listen() {
+    function handleConn() {
+        conn.on('open', () => { document.getElementById('p-status').innerText = "Connected ✅"; });
         conn.on('data', d => {
-            if(d === "_T") showT();
-            else if(d.v) addAudio(d.v, 'fr');
+            if(d.v) addAudio(d.v, 'fr');
             else addMsg(d, 'fr');
         });
-        conn.on('open', () => document.getElementById('id-show').innerText += " (Linked ✅)");
+        conn.on('close', () => { document.getElementById('p-status').innerText = "Disconnected ❌"; });
     }
 
     function send() {
@@ -131,7 +143,7 @@
         }
     }
 
-    // --- VOICE LOGIC FIXED ---
+    // --- MIC / VOICE LOGIC ---
     const vBtn = document.getElementById('v-btn');
     ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
     ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
@@ -144,7 +156,7 @@
             mediaRec.ondataavailable = e => chunks.push(e.data);
             mediaRec.start();
             vBtn.classList.add('rec');
-        } catch(e) { alert("Mic Permission Denied!"); }
+        } catch(e) { alert("Mic required!"); }
     }
 
     function stopV() {
@@ -165,10 +177,8 @@
         };
     }
 
-    // --- CALL LOGIC FIXED ---
-    function startCall() {
-        let tid = document.getElementById('t-id').value.toUpperCase();
-        if(!tid) return alert("ID Needed");
+    function makeCall() {
+        let tid = document.getElementById('fid').value.toUpperCase();
         navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
             lStream = s;
             activeCall = peer.call(tid, s);
@@ -185,29 +195,20 @@
         hangupUI();
     }
 
-    function hangupUI() { 
-        document.getElementById('call-ui').style.display = 'none'; 
-        // Optional: location.reload(); // If connection hangs, reload ensures clean state
-    }
+    function hangupUI() { document.getElementById('call-ui').style.display = 'none'; }
 
     function addMsg(m, c) {
         let d = document.createElement('div'); d.className = `msg ${c}`; d.innerText = m;
-        document.getElementById('chat-box').appendChild(d);
-        document.getElementById('chat-box').scrollTop = 9999;
+        const cb = document.getElementById('chat-box');
+        cb.appendChild(d); cb.scrollTop = cb.scrollHeight;
     }
 
     function addAudio(b, c) {
         let d = document.createElement('div'); d.className = `msg ${c}`;
-        let a = document.createElement('audio'); a.controls = true; a.src = b; a.style.width = "180px";
+        let a = document.createElement('audio'); a.controls = true; a.src = b; a.style.width = "200px";
         d.appendChild(a);
-        document.getElementById('chat-box').appendChild(d);
-        document.getElementById('chat-box').scrollTop = 9999;
-    }
-
-    function isTyping() { if(conn && conn.open) conn.send("_T"); }
-    function showT() {
-        let t = document.getElementById('typing'); t.style.visibility = 'visible';
-        clearTimeout(window.tO); window.tO = setTimeout(()=> t.style.visibility = 'hidden', 2000);
+        const cb = document.getElementById('chat-box');
+        cb.appendChild(d); cb.scrollTop = cb.scrollHeight;
     }
 </script>
 </body>
