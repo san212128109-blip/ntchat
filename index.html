@@ -3,76 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue Secret Chat</title>
+    <title>Blue Offline-Sync Chat</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; background-color: #0a0a0a; color: #e0e0e0;
-            margin: 0; min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; 
+            align-items: center; padding: 20px; background-color: #0a0a0a; color: #e0e0e0; margin: 0; 
         }
         .container {
-            background: #161b22; padding: 25px; border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8); text-align: center;
-            width: 100%; max-width: 400px; display: none; margin-top: 20px;
-            border: 1px solid #30363d;
+            background: #161b22; padding: 25px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            text-align: center; width: 100%; max-width: 400px; display: none; margin-top: 20px; border: 1px solid #30363d;
         }
         #chat-box { 
-            width: 100%; height: 420px; border: 1px solid #30363d; 
-            border-radius: 12px; overflow-y: auto; padding: 15px; 
-            margin: 15px 0; background: #0d1117; display: flex;
-            flex-direction: column; box-sizing: border-box;
+            width: 100%; height: 420px; border: 1px solid #30363d; border-radius: 12px; 
+            overflow-y: auto; padding: 15px; margin: 15px 0; background: #0d1117; display: flex; flex-direction: column; box-sizing: border-box;
         }
-        /* Blue Theme Messages */
-        .my-msg { 
-            align-self: flex-end; background: #2196f3; color: white; 
-            padding: 10px 14px; border-radius: 15px 15px 0 15px; 
-            margin: 5px 0; max-width: 80%; font-size: 15px; 
-        }
-        .friend-msg { 
-            align-self: flex-start; background: #30363d; color: #58a6ff; 
-            padding: 10px 14px; border-radius: 15px 15px 15px 0; 
-            margin: 5px 0; max-width: 80%; font-size: 15px; 
-        }
-        input { 
-            width: 100%; padding: 12px; margin-bottom: 10px;
-            border: 1px solid #30363d; border-radius: 8px;
-            background: #010409; color: #58a6ff; outline: none; box-sizing: border-box;
-        }
-        button {
-            cursor: pointer; padding: 12px; background: #1f6feb; 
-            color: white; border: none; border-radius: 8px; 
-            font-weight: bold; width: 100%; transition: 0.2s;
-        }
-        button:hover { background: #388bfd; }
-        #status { font-size: 13px; margin-bottom: 10px; color: #8b949e; }
+        .my-msg { align-self: flex-end; background: #2196f3; color: white; padding: 10px 14px; border-radius: 15px 15px 0 15px; margin: 5px 0; max-width: 80%; }
+        .friend-msg { align-self: flex-start; background: #30363d; color: #58a6ff; padding: 10px 14px; border-radius: 15px 15px 15px 0; margin: 5px 0; max-width: 80%; }
+        .pending { opacity: 0.6; font-style: italic; font-size: 11px; display: block; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #30363d; border-radius: 8px; background: #010409; color: #58a6ff; outline: none; box-sizing: border-box; }
+        button { cursor: pointer; padding: 12px; background: #1f6feb; color: white; border: none; border-radius: 8px; font-weight: bold; width: 100%; }
+        #status { font-size: 13px; margin-bottom: 10px; }
         .id-badge { color: #58a6ff; font-weight: bold; }
-        .clear-btn { background: #21262d; margin-top: 10px; color: #f85149; border: 1px solid #30363d; }
     </style>
 </head>
 <body>
 
     <div id="main-ui" class="container">
-        <h2 style="margin:0 0 10px 0; color: #58a6ff;">🔵 Private Blue</h2>
+        <h2 style="margin:0 0 10px 0; color: #58a6ff;">🔵 Offline-Sync Chat</h2>
         <p style="font-size: 14px;">My ID: <span id="my-id-display" class="id-badge">...</span></p>
-        <div id="status">Status: Initializing...</div>
+        <div id="status">Status: Connecting...</div>
 
-        <input type="text" id="friend-id" placeholder="Friend's 4-letter ID">
-        <button onclick="connectToFriend()">Connect Now</button>
+        <input type="text" id="friend-id" placeholder="Friend's ID">
+        <button onclick="connectToFriend()">Connect / Set Target</button>
 
         <div id="chat-box"></div>
 
-        <input id="message" placeholder="Type blue message..." onkeypress="handleEnter(event)">
+        <input id="message" placeholder="Offline e thakleu message pathao..." onkeypress="handleEnter(event)">
         <button onclick="sendMessage()">Send Message</button>
-        
-        <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+        <button style="margin-top:10px; background:#21262d; color:#f85149;" onclick="clearHistory()">Clear All</button>
     </div>
 
     <script>
         const MASTER_PASSWORD = "1234"; 
         let peer, conn;
-        let chatHistory = JSON.parse(localStorage.getItem('blue_chats')) || [];
+        let chatHistory = JSON.parse(localStorage.getItem('sync_chats')) || [];
+        let pendingMessages = JSON.parse(localStorage.getItem('pending_msgs')) || [];
 
         function checkAccess() {
             const pass = prompt("Enter Secret Key:");
@@ -81,14 +57,13 @@
                 startApp();
             } else {
                 alert("Wrong Key!");
-                document.body.innerHTML = "<h1 style='color:red; text-align:center;'>ACCESS DENIED</h1>";
+                document.body.innerHTML = "<h1>ACCESS DENIED</h1>";
             }
         }
 
         function startApp() {
-            let myId = localStorage.getItem('blue_chat_id') || Math.random().toString(36).substring(2, 6).toUpperCase();
-            localStorage.setItem('blue_chat_id', myId);
-            
+            let myId = localStorage.getItem('sync_id') || Math.random().toString(36).substring(2, 6).toUpperCase();
+            localStorage.setItem('sync_id', myId);
             peer = new Peer(myId);
 
             peer.on('open', (id) => {
@@ -99,25 +74,27 @@
 
             peer.on('connection', (connection) => {
                 conn = connection;
-                localStorage.setItem('blue_target', conn.peer);
+                localStorage.setItem('sync_target', conn.peer);
                 setupChat();
             });
-
-            peer.on('disconnected', () => peer.reconnect());
         }
 
         function autoReconnect() {
-            let savedFriend = localStorage.getItem('blue_target');
+            let savedFriend = localStorage.getItem('sync_target');
             if (savedFriend) {
                 document.getElementById('friend-id').value = savedFriend;
                 connectToFriend();
             }
+            // Continuous retry
+            setInterval(() => {
+                if (!conn || !conn.open) connectToFriend();
+            }, 5000);
         }
 
         function connectToFriend() {
             const fId = document.getElementById('friend-id').value.toUpperCase();
             if (fId) {
-                localStorage.setItem('blue_target', fId);
+                localStorage.setItem('sync_target', fId);
                 conn = peer.connect(fId, { reliable: true });
                 setupChat();
             }
@@ -127,50 +104,73 @@
             conn.on('open', () => {
                 document.getElementById('status').innerText = "Status: Online ✅";
                 document.getElementById('status').style.color = "#4CAF50";
+                sendPending();
             });
 
-            conn.on('data', (data) => saveAndAppend(data, 'friend-msg'));
+            conn.on('data', (data) => {
+                saveAndAppend(data, 'friend-msg');
+            });
 
             conn.on('close', () => {
-                document.getElementById('status').innerText = "Status: Reconnecting... ⏳";
+                document.getElementById('status').innerText = "Status: Friend Offline (Syncing...) ⏳";
                 document.getElementById('status').style.color = "#ff9800";
-                setTimeout(connectToFriend, 3000);
             });
         }
 
         function sendMessage() {
             const input = document.getElementById('message');
-            if (conn && conn.open && input.value) {
-                conn.send(input.value);
-                saveAndAppend(input.value, 'my-msg');
-                input.value = "";
+            const msg = input.value;
+            if (!msg) return;
+
+            if (conn && conn.open) {
+                conn.send(msg);
+                saveAndAppend(msg, 'my-msg');
+            } else {
+                // Save to pending if offline
+                pendingMessages.push(msg);
+                localStorage.setItem('pending_msgs', JSON.stringify(pendingMessages));
+                saveAndAppend(msg, 'my-msg', true);
+            }
+            input.value = "";
+        }
+
+        function sendPending() {
+            if (pendingMessages.length > 0 && conn && conn.open) {
+                pendingMessages.forEach(msg => conn.send(msg));
+                pendingMessages = [];
+                localStorage.setItem('pending_msgs', JSON.stringify(pendingMessages));
+                loadHistory(); // Refresh to remove "pending" text
             }
         }
 
-        function saveAndAppend(msg, type) {
-            chatHistory.push({ msg, type });
-            localStorage.setItem('blue_chats', JSON.stringify(chatHistory));
-            appendMessage(msg, type);
+        function saveAndAppend(msg, type, isPending = false) {
+            if (!isPending) {
+                chatHistory.push({ msg, type });
+                localStorage.setItem('sync_chats', JSON.stringify(chatHistory));
+            }
+            appendMessage(msg, type, isPending);
         }
 
         function loadHistory() {
-            chatHistory.forEach(item => appendMessage(item.msg, item.type));
+            const box = document.getElementById('chat-box');
+            box.innerHTML = '';
+            chatHistory.forEach(item => appendMessage(item.msg, item.type, false));
+            pendingMessages.forEach(msg => appendMessage(msg, 'my-msg', true));
         }
 
-        function appendMessage(msg, className) {
+        function appendMessage(msg, className, isPending) {
             const box = document.getElementById('chat-box');
             const div = document.createElement('div');
             div.className = className;
-            div.innerText = msg;
+            div.innerHTML = msg + (isPending ? '<span class="pending">Waiting to sync...</span>' : '');
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
 
         function clearHistory() {
-            if(confirm("Sob message muche felbe?")) {
-                localStorage.removeItem('blue_chats');
-                chatHistory = [];
-                document.getElementById('chat-box').innerHTML = '';
+            if(confirm("Everything will be deleted!")) {
+                localStorage.clear();
+                location.reload();
             }
         }
 
