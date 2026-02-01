@@ -2,454 +2,203 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Custom Messenger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Master Secret Hub</title>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        :root {
-            --main-blue: #1f6feb;
-            --dark-bg: #0b141a;
-            --chat-bg-opacity: rgba(13, 17, 23, 0.7); /* Chat box background with opacity */
-            --incoming: #202c33;
-            --outgoing: #005c4b;
+        :root { --wa-dark: #0b141a; --wa-header: #202c33; --wa-blue: #00a884; --my-msg: #005c4b; --friend-msg: #202c33; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; padding: 0; background-color: var(--wa-dark); color: #e9edef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background-image: url('https://i.ibb.co/LzqXfGz/background.jpg'); /* Background Image */
+            background-size: cover; background-position: center;
         }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--dark-bg);
-            color: #e9edef;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            background-image: url('https://i.imgur.com/your-image-url.jpg'); /* Your provided image URL */
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 450px;
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            background: var(--chat-bg-opacity); /* Use opacity for chat box background */
-            border-left: 1px solid #333;
-            border-right: 1px solid #333;
-            backdrop-filter: blur(5px); /* Optional: blur background behind chatbox */
-            -webkit-backdrop-filter: blur(5px); /* Safari support */
-        }
-        header {
-            background: rgba(32, 44, 51, 0.8); /* Header background with opacity */
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-        #status {
-            font-size: 12px;
-            color: #8696a0;
-        }
-
-        #chat-box {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .msg {
-            padding: 8px 12px;
-            border-radius: 8px;
-            max-width: 75%;
-            font-size: 15px;
-            position: relative;
-            word-wrap: break-word;
-            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13); /* Subtle shadow for bubbles */
-        }
-        .my-msg {
-            align-self: flex-end;
-            background: var(--outgoing);
-            color: white;
-            border-bottom-right-radius: 0;
-        }
-        .friend-msg {
-            align-self: flex-start;
-            background: var(--incoming);
-            color: white;
-            border-bottom-left-radius: 0;
-        }
-        .pending-tag {
-            font-size: 10px;
-            opacity: 0.7;
-            display: block;
-            margin-top: 4px;
-            color: #ccc;
-        }
-
-        .input-area {
-            background: rgba(32, 44, 51, 0.8); /* Input area background with opacity */
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-top: 1px solid #333;
-        }
-        input {
-            flex: 1;
-            background: #2a3942;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
-            outline: none;
-        }
-        
-        button {
-            background: var(--main-blue);
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
-        }
-        button:active {
-            transform: scale(0.9);
-        }
-
-        /* Call Screen */
-        #call-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 20, 26, 0.9); /* Call screen background with opacity */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            color: white;
-        }
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--main-blue);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 0 15px rgba(0, 128, 255, 0.5); /* Glowing effect */
-        }
-        .call-label {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        .call-btn-end {
-            background: #ea4335 !important;
-            border-radius: 30px !important;
-            width: auto !important;
-            height: auto !important;
-            padding: 15px 40px !important;
-            margin-top: 30px;
-            font-weight: bold;
-        }
+        #access-ui { position: fixed; inset: 0; background: var(--wa-dark); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #main-app { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 500px; margin: 0 auto; background: rgba(11, 20, 26, 0.85); backdrop-filter: blur(10px); }
+        header { background: var(--wa-header); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #333; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 15px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .my { align-self: flex-end; background: var(--my-msg); border-top-right-radius: 2px; }
+        .friend { align-self: flex-start; background: var(--friend-msg); border-top-left-radius: 2px; }
+        .input-bar { background: var(--wa-header); padding: 10px; display: flex; align-items: center; gap: 10px; }
+        input { flex: 1; background: #2a3942; border: none; border-radius: 25px; padding: 12px 18px; color: #fff; font-size: 16px; outline: none; }
+        .btn { width: 45px; height: 45px; border-radius: 50%; border: none; background: var(--wa-blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+        #voice-btn.active { background: #ea4335; animation: pulse 0.8s infinite; }
+        #call-ui { position: fixed; inset: 0; background: #0b141a; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .end-call { background: #ea4335; padding: 15px 40px; border-radius: 30px; border: none; color: white; font-weight: bold; margin-top: 50px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-<div id="call-screen">
-    <div class="avatar">👤</div>
-    <h2 id="call-label" class="call-label">Calling...</h2>
-    <button class="call-btn-end" onclick="endCall()">End Call</button>
-</div>
-
-<div id="main-ui" class="app-container">
-    <header>
-        <div>
-            <div style="font-weight: bold; color: var(--main-blue);">Secret Chat</div>
-            <div id="status">Connecting...</div>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <button onclick="startCall()" style="background:transparent; font-size: 20px; width:auto; height:auto; padding:0;">📞</button>
-            <span style="font-size: 11px; background: #333; padding: 4px 8px; border-radius: 4px;">ID: <b id="my-id-display">...</b></span>
-        </div>
-    </header>
-
-    <div style="padding: 10px; background: rgba(17, 27, 33, 0.8); border-bottom: 1px solid #333;">
-        <input type="text" id="friend-id-input" placeholder="Bondhur ID din..." style="font-size: 12px; margin-bottom: 5px;">
-        <button onclick="manualConnect()" style="border-radius: 5px; width: 100%; height: 30px; font-size: 12px;">Connect & Sync</button>
+    <div id="access-ui">
+        <h2 style="color: var(--wa-blue);">🔒 Access Hub</h2>
+        <input type="password" id="pass" placeholder="Password: 1234" style="padding: 12px; border-radius: 10px; border: none; margin-bottom: 15px; text-align: center; width: 200px;">
+        <button onclick="unlock()" class="btn" style="width: 100px; border-radius: 10px;">Enter</button>
     </div>
 
-    <div id="chat-box"></div>
-    <div id="typing-indicator" style="padding: 5px 20px; font-size: 12px; color: #00a884; display: none; background: rgba(13, 17, 23, 0.7);">Bondhu likhche...</div>
-
-    <div class="input-area">
-        <button id="voice-btn" style="background:#54656f;" onmousedown="startRecording()" onmouseup="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()">🎤</button>
-        <input id="message-input" placeholder="Message lekho..." onkeypress="handleEnter(event)" oninput="sendTyping()">
-        <button onclick="sendMessage()">🚀</button>
+    <div id="call-ui">
+        <div style="width: 120px; height: 120px; background: #00a884; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px;">👤</div>
+        <h2 id="call-label">Calling...</h2>
+        <button class="end-call" onclick="dropCall()">End Call</button>
     </div>
-</div>
+
+    <div id="main-app">
+        <header>
+            <div>
+                <div style="font-weight: bold;">Secret Node</div>
+                <div id="my-id" style="font-size: 11px; color: #8696a0;">ID: ...</div>
+            </div>
+            <button onclick="makeCall()" style="background:none; border:none; font-size: 22px; color: var(--wa-blue);">📞</button>
+        </header>
+
+        <div style="padding: 10px; display: flex; gap: 5px; background: rgba(0,0,0,0.2);">
+            <input type="text" id="target-id" placeholder="Friend's ID" style="font-size: 12px;">
+            <button onclick="connect()" style="width: auto; padding: 0 15px; font-size: 12px; border-radius: 5px;" class="btn">Link</button>
+        </div>
+
+        <div id="chat-box"></div>
+        <div id="typing" style="padding: 5px 15px; font-size: 12px; color: #00a884; visibility: hidden;">typing...</div>
+
+        <div class="input-bar">
+            <button id="voice-btn" class="btn" style="background:#54656f;">🎤</button>
+            <input type="text" id="msg-in" placeholder="Type message..." oninput="isTyping()">
+            <button onclick="send()" class="btn">🚀</button>
+        </div>
+    </div>
 
 <script>
-    const MASTER_PASSWORD = "1234"; // Tomar Access Key
-    let peer, conn, currentStream, mediaRecorder, audioChunks = [], activeCall;
-    let chatHistory = JSON.parse(localStorage.getItem('chats')) || [];
-    let pendingQueue = JSON.parse(localStorage.getItem('pending')) || [];
-    
-    // Ringtone for incoming calls
-    const ringtone = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3'); 
-    ringtone.loop = true;
+    const PASS = "1234";
+    let peer, conn, stream, recorder, chunks = [], callInst;
+    const ring = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3');
 
-    // --- Access Control ---
-    function checkAccess() {
-        const pass = prompt("Access Key Din:");
-        if (pass === MASTER_PASSWORD) {
-            document.getElementById('main-ui').style.display = 'flex';
-            startApp();
-        } else {
-            alert("Wrong Key! Access Denied.");
-            document.body.innerHTML = "<h1>ACCESS DENIED</h1>";
-        }
+    function unlock() {
+        if(document.getElementById('pass').value === PASS) {
+            document.getElementById('access-ui').style.display = 'none';
+            document.getElementById('main-app').style.display = 'flex';
+            setup();
+        } else { alert("Wrong!"); }
     }
 
-    // --- PeerJS App Initialization ---
-    function startApp() {
-        let myId = localStorage.getItem('p_id') || Math.random().toString(36).substring(2, 6).toUpperCase();
-        localStorage.setItem('p_id', myId);
-        peer = new Peer(myId);
+    function setup() {
+        let id = localStorage.getItem('p_id') || Math.random().toString(36).substring(2,6).toUpperCase();
+        localStorage.setItem('p_id', id);
+        peer = new Peer(id);
 
-        peer.on('open', id => {
-            document.getElementById('my-id-display').innerText = id;
-            loadHistory();
-            let lastTarget = localStorage.getItem('target');
-            if (lastTarget) { document.getElementById('friend-id-input').value = lastTarget; manualConnect(); }
+        peer.on('open', (id) => {
+            document.getElementById('my-id').innerText = "My ID: " + id;
+            let last = localStorage.getItem('last_f');
+            if(last) { document.getElementById('target-id').value = last; connect(); }
         });
 
-        peer.on('connection', c => { conn = c; setupHandlers(); });
+        peer.on('connection', c => { conn = c; listen(); });
 
-        // Handle incoming calls
-        peer.on('call', call => {
-            ringtone.play(); // Play ringtone
-            if (confirm("Incoming Audio Call... Answer?")) {
-                ringtone.pause(); ringtone.currentTime = 0; // Stop ringtone
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
-                    currentStream = s; // Save local stream to stop later
-                    activeCall = call;
-                    document.getElementById('call-screen').style.display = 'flex';
-                    document.getElementById('call-label').innerText = "In Call";
-                    call.answer(s);
-                    call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-                    call.on('close', () => endCallUI());
-                }).catch(e => {
-                    alert("Mic Access Dorkar!");
-                    ringtone.pause(); ringtone.currentTime = 0;
+        peer.on('call', c => {
+            ring.play();
+            if(confirm("Incoming Call...")) {
+                ring.pause();
+                navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+                    callInst = c; stream = s;
+                    document.getElementById('call-ui').style.display = 'flex';
+                    c.answer(s);
+                    c.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
+                    c.on('close', () => dropCallUI());
                 });
-            } else {
-                ringtone.pause(); ringtone.currentTime = 0;
-            }
+            } else { ring.pause(); }
         });
-
-        // PeerJS error handling
-        peer.on('error', err => console.error("PeerJS Error:", err));
     }
 
-    // --- Connection Handling ---
-    function manualConnect() {
-        const id = document.getElementById('friend-id-input').value.toUpperCase();
-        if (id) { 
-            localStorage.setItem('target', id); 
-            conn = peer.connect(id, { reliable: true }); // Ensure reliable connection
-            setupHandlers(); 
+    function connect() {
+        let tid = document.getElementById('target-id').value.toUpperCase();
+        if(tid) { localStorage.setItem('last_f', tid); conn = peer.connect(tid); listen(); }
+    }
+
+    function listen() {
+        conn.on('data', d => {
+            if(d === "___T") showT();
+            else if(d.voice) pushAudio(d.voice, 'friend');
+            else pushMsg(d, 'friend');
+        });
+    }
+
+    function send() {
+        let i = document.getElementById('msg-in');
+        if(conn && conn.open && i.value) {
+            conn.send(i.value);
+            pushMsg(i.value, 'my');
+            i.value = "";
         }
     }
 
-    function setupHandlers() {
-        conn.on('open', () => {
-            document.getElementById('status').innerText = "Online ✅";
-            flushPending(); // Send pending messages on connection
-        });
-        conn.on('data', data => {
-            if (data === "___TYPING___") showTyping();
-            else if (data.type === 'voice') updateStorage(data.blob, 'friend-msg', true);
-            else updateStorage(data, 'friend-msg');
-        });
-        conn.on('close', () => document.getElementById('status').innerText = "Offline ⏳");
-        conn.on('error', err => console.error("Connection Error:", err));
-    }
+    // --- MIC LOGIC ---
+    const vBtn = document.getElementById('voice-btn');
+    ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startRec(); }));
+    ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopRec(); }));
 
-    // --- CALLING FEATURE ---
-    function startCall() {
-        const id = document.getElementById('friend-id-input').value.toUpperCase();
-        if (!id) { alert("Bondhur ID din!"); return; }
-
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(s => {
-            currentStream = s; // Save local stream
-            activeCall = peer.call(id, s);
-            document.getElementById('call-screen').style.display = 'flex';
-            document.getElementById('call-label').innerText = "Calling...";
-            activeCall.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-            activeCall.on('close', () => endCallUI());
-            activeCall.on('error', err => { console.error("Call Error:", err); endCallUI(); });
-        }).catch(e => {
-            alert("Microphone Access Dorkar!");
-        });
-    }
-
-    function endCall() {
-        if (activeCall) activeCall.close(); // Close the PeerJS call
-        if (currentStream) currentStream.getTracks().forEach(t => t.stop()); // Stop local mic
-        ringtone.pause(); ringtone.currentTime = 0; // Stop ringtone
-        endCallUI();
-    }
-
-    function endCallUI() { document.getElementById('call-screen').style.display = 'none'; }
-
-    // --- MESSAGING AND VOICE RECORDING ---
-    function sendMessage() {
-        const input = document.getElementById('message-input');
-        const msg = input.value.trim();
-        if (!msg) return;
-
-        if (conn && conn.open) {
-            conn.send(msg);
-            updateStorage(msg, 'my-msg');
-        } else {
-            pendingQueue.push(msg);
-            localStorage.setItem('pending', JSON.stringify(pendingQueue));
-            appendMessage(msg, 'my-msg', true); // Show as pending
-        }
-        input.value = "";
-    }
-
-    let typingTimeout;
-    function sendTyping() { 
-        if (conn && conn.open) {
-            conn.send("___TYPING___"); 
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                // Optionally send a "stopped typing" message after a delay
-            }, 1500);
-        }
-    }
-
-    function showTyping() {
-        const t = document.getElementById('typing-indicator');
-        t.style.display = 'block';
-        clearTimeout(window.typingDisplayTimeout);
-        window.typingDisplayTimeout = setTimeout(() => t.style.display = 'none', 2000);
-    }
-
-    async function startRecording() {
+    async function startRec() {
         try {
-            currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(currentStream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.start();
-            document.getElementById('voice-btn').style.background = "#ea4335"; // Red for recording
-        } catch (e) { 
-            alert("Microphone Access Dorkar!"); 
-        }
+            stream = await navigator.mediaDevices.getUserMedia({audio:true});
+            recorder = new MediaRecorder(stream);
+            chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.start();
+            vBtn.classList.add('active');
+        } catch(e) { alert("Mic Error!"); }
     }
 
-    function stopRecording() {
-        if (!mediaRecorder || mediaRecorder.state === "inactive") return;
-        mediaRecorder.stop();
-        document.getElementById('voice-btn').style.background = "#54656f"; // Back to normal color
-        
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+    function stopRec() {
+        if(!recorder || recorder.state === "inactive") return;
+        recorder.stop();
+        vBtn.classList.remove('active');
+        stream.getTracks().forEach(t => t.stop());
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, {type:'audio/ogg'});
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = () => {
-                const base64data = reader.result;
-                if (conn && conn.open) {
-                    conn.send({ type: 'voice', blob: base64data });
-                    updateStorage(base64data, 'my-msg', true);
-                } else {
-                    // If offline, queue voice messages too
-                    pendingQueue.push({ type: 'voice', blob: base64data });
-                    localStorage.setItem('pending', JSON.stringify(pendingQueue));
-                    appendAudio(base64data, 'my-msg', true);
+                if(conn && conn.open) {
+                    conn.send({voice: reader.result});
+                    pushAudio(reader.result, 'my');
                 }
             };
-            // Stop mic tracks only after processing the audio chunk
-            currentStream.getTracks().forEach(t => t.stop()); 
         };
     }
 
-    // --- HISTORY & UI RENDERING ---
-    function updateStorage(content, type, isVoice = false) {
-        chatHistory.push({ content, type, isVoice });
-        localStorage.setItem('chats', JSON.stringify(chatHistory));
-        isVoice ? appendAudio(content, type) : appendMessage(content, type);
-    }
-
-    function flushPending() {
-        if (pendingQueue.length > 0 && conn && conn.open) {
-            pendingQueue.forEach(item => {
-                if (item.type === 'voice') conn.send({ type: 'voice', blob: item.blob });
-                else conn.send(item);
-                chatHistory.push(item); // Add to history after sending
-            });
-            pendingQueue = [];
-            localStorage.setItem('pending', JSON.stringify(pendingQueue));
-            localStorage.setItem('chats', JSON.stringify(chatHistory));
-            loadHistory(); // Re-render to clear pending tags
-        }
-    }
-
-    function loadHistory() {
-        document.getElementById('chat-box').innerHTML = '';
-        chatHistory.forEach(c => c.isVoice ? appendAudio(c.content, c.type) : appendMessage(c.content, c.type));
-        // Show any still pending items from queue
-        pendingQueue.forEach(item => {
-            if (item.type === 'voice') appendAudio(item.blob, 'my-msg', true);
-            else appendMessage(item, 'my-msg', true);
+    function makeCall() {
+        let tid = document.getElementById('target-id').value.toUpperCase();
+        navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
+            stream = s;
+            callInst = peer.call(tid, s);
+            document.getElementById('call-ui').style.display = 'flex';
+            callInst.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
+            callInst.on('close', () => dropCallUI());
         });
     }
 
-    function appendMessage(m, c, p = false) {
-        const d = document.createElement('div');
-        d.className = `msg ${c}`;
-        d.innerHTML = m + (p ? '<span class="pending-tag">🕒 Pending</span>' : '');
+    function dropCall() { if(callInst) callInst.close(); if(stream) stream.getTracks().forEach(t => t.stop()); dropCallUI(); }
+    function dropCallUI() { document.getElementById('call-screen').style.display = 'none'; location.reload(); }
+
+    function pushMsg(m, c) {
+        let d = document.createElement('div'); d.className = `msg ${c}`; d.innerText = m;
         document.getElementById('chat-box').appendChild(d);
-        document.getElementById('chat-box').scrollTop = 99999;
+        document.getElementById('chat-box').scrollTop = 9999;
     }
 
-    function appendAudio(b, c, p = false) {
-        const d = document.createElement('div');
-        d.className = `msg ${c}`;
-        const a = document.createElement('audio'); a.controls = true; a.src = b; a.style.width = "160px";
-        d.innerHTML = ''; // Clear existing content if any
+    function pushAudio(b, c) {
+        let d = document.createElement('div'); d.className = `msg ${c}`;
+        let a = document.createElement('audio'); a.controls = true; a.src = b; a.style.width = "180px";
         d.appendChild(a);
-        if (p) {
-            const span = document.createElement('span');
-            span.className = 'pending-tag';
-            span.innerText = '🕒 Pending';
-            d.appendChild(span);
-        }
         document.getElementById('chat-box').appendChild(d);
-        document.getElementById('chat-box').scrollTop = 99999;
+        document.getElementById('chat-box').scrollTop = 9999;
     }
 
-    function handleEnter(e) { if(e.key==='Enter') sendMessage(); }
-    checkAccess(); // Start the app by checking password
+    function isTyping() { if(conn && conn.open) conn.send("___T"); }
+    function showT() {
+        let t = document.getElementById('typing'); t.style.visibility = 'visible';
+        clearTimeout(window.tO); window.tO = setTimeout(()=> t.style.visibility = 'hidden', 2000);
+    }
 </script>
 </body>
 </html>
