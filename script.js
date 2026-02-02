@@ -10,7 +10,7 @@ function auth() {
     } else if(val === "4321") {
         document.getElementById('login').style.display = 'none';
         document.getElementById('flag-page').style.display = 'flex';
-    } else { alert("Access Denied!"); }
+    } else { alert("Incorrect Code!"); }
 }
 
 function init() {
@@ -19,13 +19,11 @@ function init() {
     peer = new Peer(id);
     peer.on('open', (myId) => {
         document.getElementById('p-status').innerText = "ID: " + myId;
-        let last = localStorage.getItem('last_f');
-        if(last) { document.getElementById('fid').value = last; link(); }
     });
     peer.on('connection', c => { conn = c; handleConn(); });
     peer.on('call', call => {
         ring.play();
-        if(confirm("Answer Call?")) {
+        if(confirm("Incoming Call. Answer?")) {
             ring.pause();
             navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
                 activeCall = call; lStream = s;
@@ -40,13 +38,12 @@ function init() {
 
 function link() {
     let tid = document.getElementById('fid').value.toUpperCase();
-    if(tid) { localStorage.setItem('last_f', tid); conn = peer.connect(tid); handleConn(); }
+    if(tid) { conn = peer.connect(tid); handleConn(); }
 }
 
 function handleConn() {
     conn.on('open', () => { document.getElementById('p-status').innerText = "Connected ✅"; });
     conn.on('data', d => { if(d.v) addAudio(d.v, 'fr'); else addMsg(d, 'fr'); });
-    conn.on('close', () => { document.getElementById('p-status').innerText = "Offline ❌"; });
 }
 
 function send() {
@@ -58,7 +55,7 @@ function send() {
     }
 }
 
-// Voice Recorder
+// ভয়েস রেকর্ড লজিক
 const vBtn = document.getElementById('v-btn');
 ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
 ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
@@ -98,7 +95,7 @@ function makeCall() {
     });
 }
 
-function hangup() { if(activeCall) activeCall.close(); if(lStream) lStream.getTracks().forEach(t => t.stop()); ring.pause(); hangupUI(); }
+function hangup() { if(activeCall) activeCall.close(); ring.pause(); hangupUI(); }
 function hangupUI() { document.getElementById('call-ui').style.display = 'none'; }
 
 function addMsg(m, c) {
