@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Node v2</title>
+    <title>Secure Hub Final</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
@@ -12,13 +12,13 @@
 <div id="wrapper">
     <div id="login">
         <h2 style="color:var(--wa-green); margin-bottom:20px;">SECURITY HUB</h2>
-        <input type="password" id="pw" placeholder="Passcode">
+        <input type="password" id="pw" placeholder="Enter Code">
         <button onclick="auth()" class="btn-main">ENTER</button>
     </div>
 
     <div id="app">
         <header>
-            <div><b style="color:var(--wa-green);">Secure Hub</b><div id="p-status">Initializing...</div></div>
+            <div><b style="color:var(--wa-green);">Secure Hub</b><div id="p-status">ID: ...</div></div>
             <button onclick="makeCall()" class="call-btn">📞</button>
         </header>
         <div class="link-bar">
@@ -26,8 +26,7 @@
             <button onclick="link()" class="link-btn">Link</button>
         </div>
         
-        <div id="chat-box">
-            </div>
+        <div id="chat-box"></div>
 
         <div class="input-bar">
             <button id="v-btn" class="circle-btn" style="background:#54656f;">🎤</button>
@@ -37,8 +36,11 @@
     </div>
 
     <div id="flag-page">
-        <h2>National Flag</h2>
+        <h2>Bangladesh National Flag</h2>
         <div class="flag"><div class="circle"></div></div>
+        <p class="para-text">
+            The national flag of Bangladesh was adopted officially on 17 January 1972. It consists of a red disc on top of a dark green banner. The green field stands for the lushness of the land, while the red circle represents the rising sun and the blood of those who died for independence.
+        </p>
         <button onclick="location.reload()" class="logout-btn">Logout</button>
     </div>
 </div>
