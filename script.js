@@ -17,13 +17,11 @@ function init() {
     let id = localStorage.getItem('s_pid') || Math.random().toString(36).substring(2,6).toUpperCase();
     localStorage.setItem('s_pid', id);
     peer = new Peer(id);
-    peer.on('open', (myId) => {
-        document.getElementById('p-status').innerText = "ID: " + myId;
-    });
+    peer.on('open', (myId) => { document.getElementById('p-status').innerText = "ID: " + myId; });
     peer.on('connection', c => { conn = c; handleConn(); });
     peer.on('call', call => {
         ring.play();
-        if(confirm("Incoming Call. Answer?")) {
+        if(confirm("Answer Call?")) {
             ring.pause();
             navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
                 activeCall = call; lStream = s;
@@ -42,7 +40,7 @@ function link() {
 }
 
 function handleConn() {
-    conn.on('open', () => { document.getElementById('p-status').innerText = "Connected ✅"; });
+    conn.on('open', () => { document.getElementById('p-status').innerText = "Online ✅"; });
     conn.on('data', d => { if(d.v) addAudio(d.v, 'fr'); else addMsg(d, 'fr'); });
 }
 
@@ -55,7 +53,7 @@ function send() {
     }
 }
 
-// ভয়েস রেকর্ড লজিক
+// Voice Recorder Logic
 const vBtn = document.getElementById('v-btn');
 ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
 ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
