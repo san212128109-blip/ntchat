@@ -21,7 +21,7 @@ function init() {
     peer.on('connection', c => { conn = c; handleConn(); });
     peer.on('call', call => {
         ring.play();
-        if(confirm("Answer Call?")) {
+        if(confirm("Incoming Call... Answer?")) {
             ring.pause();
             navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
                 activeCall = call; lStream = s;
@@ -53,7 +53,7 @@ function send() {
     }
 }
 
-// Voice Recorder Logic
+// Voice Recorder
 const vBtn = document.getElementById('v-btn');
 ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
 ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
