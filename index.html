@@ -4,103 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Secure Node Final</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <style>
-        :root { --wa-green: #00a884; --dark: #0b141a; --header: #202c33; --my: #005c4b; --fr: #202c33; }
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        body, html { height: 100%; width: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-
-        #wrapper { height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; }
-
-        #login, #app, #flag-page { 
-            width: 100%; max-width: 480px; height: 100%; 
-            background: var(--dark); display: flex; flex-direction: column; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        #login { justify-content: center; align-items: center; padding: 20px; z-index: 10; text-align: center; }
-        #app, #flag-page { display: none; }
-
-        header { background: var(--header); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        
-        /* --- চ্যাট বক্সের ভেতরে ওয়াটারমার্ক --- */
-        #chat-box { 
-            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-            position: relative; background-color: var(--dark);
-        }
-
-        #chat-box::before {
-            content: ""; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 85%; height: 70%;
-            background-image: url('https://i.ibb.co/vHqPjT3/vHqPjT3.jpg'); /* আপনার দেওয়া ওয়াটারমার্ক ইমেজ */
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.12; /* ওয়াটারমার্কের ঘনত্ব - এটি ০.১ থেকে ০.৩ পর্যন্ত রাখতে পারেন */
-            pointer-events: none;
-        }
-
-        .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 15px; color: #fff; z-index: 2; position: relative; }
-        .my { align-self: flex-end; background: var(--my); border-bottom-right-radius: 2px; }
-        .fr { align-self: flex-start; background: var(--fr); border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.1); }
-
-        .input-bar { background: var(--header); padding: 12px; display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
-        input#m-in { flex: 1; background: #2a3942; border: none; border-radius: 25px; padding: 12px 18px; color: #fff; font-size: 16px; }
-        
-        .circle-btn { width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--wa-green); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
-        .circle-btn:active { transform: scale(0.9); }
-
-        #flag-page { padding: 40px; text-align: center; color: #fff; overflow-y: auto; }
-        .flag { width: 180px; height: 110px; background: #006a4e; margin: 30px auto; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-        .circle { width: 55px; height: 55px; background: #f42a41; border-radius: 50%; }
-
-        #call-ui { position: fixed; inset: 0; background: #0b141a; z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
-    </style>
 </head>
 <body>
 
 <div id="wrapper">
     <div id="login">
-        <h2 style="color:var(--wa-green); margin-bottom:20px; letter-spacing:1px;">SECRET NODE</h2>
-        <input type="password" id="pw" placeholder="Password" style="padding:15px; border-radius:10px; border:none; width:85%; text-align:center; background:#2a3942; color:#fff; margin-bottom:20px; font-size:16px;">
-        <button onclick="auth()" class="circle-btn" style="width:85%; border-radius:10px; font-size:16px; font-weight:bold;">ENTER</button>
+        <h2 style="color:var(--wa-green); margin-bottom:20px;">SECRET NODE</h2>
+        <input type="password" id="pw" placeholder="Enter Password">
+        <button onclick="auth()" class="enter-btn">ACCESS HUB</button>
     </div>
 
     <div id="app">
         <header>
-            <div><b style="color:var(--wa-green);">Secure Hub</b><div id="p-status" style="font-size:10px; color:#8696a0;">Initializing...</div></div>
-            <button onclick="makeCall()" style="background:none; border:none; font-size:24px; cursor:pointer;">📞</button>
+            <div><b style="color:var(--wa-green);">Secure Hub</b><div id="p-status">Initializing...</div></div>
+            <button onclick="makeCall()" class="call-btn">📞</button>
         </header>
-        <div style="padding:10px; display:flex; gap:5px; background:rgba(0,0,0,0.3);">
-            <input type="text" id="fid" placeholder="Friend's Peer ID" style="flex:1; padding:10px; border-radius:5px; background:#111b21; border:none; color:#fff; font-size:14px;">
-            <button onclick="link()" style="background:var(--wa-green); border:none; padding:0 15px; border-radius:5px; color:#fff; font-weight:bold; cursor:pointer;">Link</button>
+        <div class="link-bar">
+            <input type="text" id="fid" placeholder="Friend ID">
+            <button onclick="link()" class="link-btn">Link</button>
         </div>
-        <div id="chat-box"></div>
+        <div id="chat-box">
+            </div>
         <div class="input-bar">
             <button id="v-btn" class="circle-btn" style="background:#54656f;">🎤</button>
-            <input type="text" id="m-in" placeholder="Message..." autocomplete="off">
-            <button onclick="send()" class="circle-btn">🚀</button>
+            <input type="text" id="m-in" placeholder="Type a message..." autocomplete="off">
+            <button onclick="send()" class="circle-btn" style="background:var(--wa-green);">🚀</button>
         </div>
     </div>
 
     <div id="flag-page">
-        <h2 style="color:var(--wa-green);">Bangladesh Flag</h2>
+        <h2>Bangladesh Flag</h2>
         <div class="flag"><div class="circle"></div></div>
-        <p style="line-height:1.6; color:#cfd8dc; text-align:justify;">
-            The national flag of Bangladesh consists of a red circle in the middle of a green field. The green symbolizes the lushness of the land, while the red circle represents the rising sun and the blood of those who died for independence.
-        </p>
-        <button onclick="location.reload()" style="margin-top:40px; background:#2a3942; border:none; padding:12px 30px; color:#fff; border-radius:10px; cursor:pointer;">Logout</button>
+        <p>The green field represents the lush land, and the red disc represents the rising sun.</p>
+        <button onclick="location.reload()" class="logout-btn">Logout</button>
     </div>
 </div>
 
-<div id="call-ui">
-    <div style="width:110px; height:110px; background:var(--wa-green); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:45px;">👤</div>
-    <h3 id="call-info" style="margin-top:20px;">Secure Connection...</h3>
-    <button onclick="hangup()" style="background:#ea4335; border:none; padding:15px 40px; border-radius:30px; color:white; font-weight:bold; margin-top:50px; cursor:pointer;">End Call</button>
-</div>
-
 <script>
-    let peer, conn, lStream, mediaRec, chunks = [], activeCall;
-    const ring = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3');
+    let peer, conn;
 
     function auth() {
         const val = document.getElementById('pw').value;
@@ -111,7 +54,7 @@
         } else if(val === "4321") {
             document.getElementById('login').style.display = 'none';
             document.getElementById('flag-page').style.display = 'flex';
-        } else { alert("Access Denied!"); }
+        } else { alert("Wrong Password!"); }
     }
 
     function init() {
@@ -124,19 +67,6 @@
             if(last) { document.getElementById('fid').value = last; link(); }
         });
         peer.on('connection', c => { conn = c; handleConn(); });
-        peer.on('call', call => {
-            ring.play();
-            if(confirm("Answer Incoming Call?")) {
-                ring.pause();
-                navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-                    activeCall = call; lStream = s;
-                    document.getElementById('call-ui').style.display = 'flex';
-                    call.answer(s);
-                    call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-                    call.on('close', () => hangupUI());
-                });
-            } else { ring.pause(); }
-        });
     }
 
     function link() {
@@ -146,8 +76,7 @@
 
     function handleConn() {
         conn.on('open', () => { document.getElementById('p-status').innerText = "Connected ✅"; });
-        conn.on('data', d => { if(d.v) addAudio(d.v, 'fr'); else addMsg(d, 'fr'); });
-        conn.on('close', () => { document.getElementById('p-status').innerText = "Offline ❌"; });
+        conn.on('data', d => { addMsg(d, 'fr'); });
     }
 
     function send() {
@@ -159,59 +88,10 @@
         }
     }
 
-    // Mic & Voice
-    const vBtn = document.getElementById('v-btn');
-    ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
-    ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
-
-    async function startV() {
-        try {
-            lStream = await navigator.mediaDevices.getUserMedia({audio:true});
-            mediaRec = new MediaRecorder(lStream);
-            chunks = [];
-            mediaRec.ondataavailable = e => chunks.push(e.data);
-            mediaRec.start();
-            vBtn.style.background = "#ea4335";
-        } catch(e) { console.log(e); }
-    }
-
-    function stopV() {
-        if(!mediaRec || mediaRec.state === "inactive") return;
-        mediaRec.stop();
-        vBtn.style.background = "#54656f";
-        mediaRec.onstop = () => {
-            const blob = new Blob(chunks, {type: 'audio/webm'});
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = () => { if(conn && conn.open) { conn.send({v: reader.result}); addAudio(reader.result, 'my'); } };
-            lStream.getTracks().forEach(t => t.stop());
-        };
-    }
-
-    function makeCall() {
-        let tid = document.getElementById('fid').value.toUpperCase();
-        navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-            lStream = s;
-            activeCall = peer.call(tid, s);
-            document.getElementById('call-ui').style.display = 'flex';
-            activeCall.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-            activeCall.on('close', () => hangupUI());
-        });
-    }
-
-    function hangup() { if(activeCall) activeCall.close(); if(lStream) lStream.getTracks().forEach(t => t.stop()); ring.pause(); hangupUI(); }
-    function hangupUI() { document.getElementById('call-ui').style.display = 'none'; }
-
     function addMsg(m, c) {
         let d = document.createElement('div'); d.className = `msg ${c}`; d.innerText = m;
-        const cb = document.getElementById('chat-box'); cb.appendChild(d); cb.scrollTop = cb.scrollHeight;
-    }
-
-    function addAudio(b, c) {
-        let d = document.createElement('div'); d.className = `msg ${c}`;
-        let a = document.createElement('audio'); a.controls = true; a.src = b; a.style.width = "180px";
-        d.appendChild(a);
-        const cb = document.getElementById('chat-box'); cb.appendChild(d); cb.scrollTop = cb.scrollHeight;
+        const cb = document.getElementById('chat-box');
+        cb.appendChild(d); cb.scrollTop = cb.scrollHeight;
     }
 </script>
 </body>
