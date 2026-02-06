@@ -1,184 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Hub - NT</title>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <style>
-        :root { --wa-green: #00a884; --dark: #0b141a; --header: #202c33; --my: #005c4b; --fr: #202c33; }
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-        #wrapper { height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; }
-
-        /* ১. লগইন পেজ ব্যাকগ্রাউন্ড */
-        #login { 
-            width: 100%; max-width: 480px; height: 100%; background: var(--dark); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;
-            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://i.imgur.com/81Qr8kp.jpg'); 
-            background-size: cover; background-position: center;
-        }
-        #login input { padding: 15px; border-radius: 10px; border: none; width: 85%; text-align: center; background: #2a3942; color: #fff; margin-bottom: 20px; font-size: 16px; }
-        .btn-main { background: var(--wa-green); border: none; color: white; padding: 15px 40px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-
-        #app, #flag-page { width: 100%; max-width: 480px; height: 100%; background: var(--dark); display: none; flex-direction: column; }
-        
-        header { background: var(--header); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: #fff; }
-        .link-bar { padding: 10px; display: flex; gap: 5px; background: rgba(0,0,0,0.3); }
-        .link-bar input { flex: 1; padding: 10px; border-radius: 5px; background: #111b21; border: none; color: #fff; }
-        .link-btn { background: var(--wa-green); border: none; padding: 0 15px; border-radius: 5px; color: #fff; font-weight: bold; cursor: pointer; }
-
-        /* ২. চ্যাট বক্সের মেইন ব্যাকগ্রাউন্ড */
-        #chat-box {
-            flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
-            position: relative;
-            background-color: var(--dark);
-            background-image: linear-gradient(rgba(11, 20, 26, 0.85), rgba(11, 20, 26, 0.85)), 
-                              url('https://i.imgur.com/81Qr8kp.jpg'); 
-            background-size: cover; background-position: center;
-        }
-
-        .msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 15px; color: #fff; z-index: 2; position: relative; }
-        .my { align-self: flex-end; background: var(--my); border-bottom-right-radius: 2px; }
-        .fr { align-self: flex-start; background: var(--fr); border-bottom-left-radius: 2px; }
-
-        .input-bar { background: var(--header); padding: 12px; display: flex; align-items: center; gap: 10px; }
-        #m-in { flex: 1; background: #2a3942; border: none; border-radius: 25px; padding: 12px 18px; color: #fff; font-size: 16px; }
-        .circle-btn { width: 45px; height: 45px; border-radius: 50%; border: none; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-
-        /* ৩. কল ইউজার ইন্টারফেস (কল স্ক্রিন অবতার) */
-        #call-ui { position: fixed; inset: 0; background: #0b141a; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
-        .avatar { 
-            width: 120px; height: 120px; border-radius: 50%; 
-            border: 4px solid var(--wa-green);
-            background-image: url('https://i.imgur.com/81Qr8kp.jpg'); 
-            background-size: cover; background-position: center;
-        }
-        .hangup-btn { background: #ea4335; border: none; padding: 15px 40px; border-radius: 30px; color: white; margin-top: 50px; cursor: pointer; font-weight: bold; }
-
-        #flag-page { padding: 40px; text-align: center; color: #fff; }
-        .flag { width: 140px; height: 80px; background: #006a4e; margin: 0 auto; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-        .circle { width: 40px; height: 40px; background: #f42a41; border-radius: 50%; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NT</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
 <body>
 
 <div id="wrapper">
-    <div id="login">
-        <h2 style="color:#00a884; margin-bottom:20px; text-shadow: 2px 2px 4px #000;">SECURITY HUB</h2>
-        <input type="password" id="pw" placeholder="Enter Code">
-        <button onclick="auth()" class="btn-main">ACCESS</button>
-    </div>
+    <div id="login">
+        <h2 style="color:#00a884; margin-bottom:20px;">SECURITY HUB</h2>
+        <input type="password" id="pw" placeholder="Enter Code">
+        <button onclick="auth()" class="btn-main">ACCESS</button>
+    </div>
 
-    <div id="app">
-        <header>
-            <div><b style="color:#00a884;">Secure Hub</b><div id="p-status">ID: ...</div></div>
-            <button onclick="makeCall()" style="background:none; border:none; font-size:22px; cursor:pointer;">📞</button>
-        </header>
-        <div class="link-bar">
-            <input type="text" id="fid" placeholder="Friend's Peer ID">
-            <button onclick="link()" class="link-btn">Link</button>
-        </div>
-        <div id="chat-box"></div>
-        <div class="input-bar">
-            <button id="v-btn" class="circle-btn" style="background:#54656f;">🎤</button>
-            <input type="text" id="m-in" placeholder="Message..." autocomplete="off">
-            <button onclick="send()" class="circle-btn" style="background:#00a884;">🚀</button>
-        </div>
-    </div>
+    <div id="app">
+        <header>
+            <div><b style="color:#00a884;">Secure Hub</b><div id="p-status">ID: ...</div></div>
+            <button onclick="makeCall()" class="call-btn">📞</button>
+        </header>
+        <div class="link-bar">
+            <input type="text" id="fid" placeholder="Friend's Peer ID">
+            <button onclick="link()" class="link-btn">Link</button>
+        </div>
+        
+        <div id="chat-box"></div>
 
-    <div id="flag-page">
-        <h2>Bangladesh</h2>
-        <div class="flag"><div class="circle"></div></div>
-        <p style="margin-top:20px; color:#bdc3c7;">Security Interface Active.</p>
-        <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; border-radius:5px; border:none;">Logout</button>
-    </div>
+        <div class="input-bar">
+            <button id="v-btn" class="circle-btn" style="background:#54656f;">🎤</button>
+            <input type="text" id="m-in" placeholder="Message..." autocomplete="off">
+            <button onclick="send()" class="circle-btn" style="background:#00a884;">🚀</button>
+        </div>
+    </div>
+
+    <div id="flag-page">
+        <h2>Bangladesh Flag</h2>
+        <div class="flag"><div class="circle"></div></div>
+        <p class="para-text">
+            The national flag of Bangladesh was adopted officially on 17 January 1972. It consists of a red disc on top of a dark green banner. The green field stands for the lushness of the land, while the red circle represents the rising sun.
+        </p>
+        <button onclick="location.reload()" class="logout-btn">Logout</button>
+    </div>
 </div>
 
 <div id="call-ui">
-    <div class="avatar"></div>
-    <h3 style="margin-top:20px;">Secure Calling...</h3>
-    <button onclick="hangup()" class="hangup-btn">End Call</button>
+    <div class="avatar">👤</div>
+    <h3 style="margin-top:20px;">Secure Calling...</h3>
+    <button onclick="hangup()" class="hangup-btn">End Call</button>
 </div>
 
-<script>
-    // JS Code remains same as yours
-    let peer, conn, lStream, mediaRec, chunks = [], activeCall;
-    const ring = new Audio('https://assets.mixkit.co/active_storage/sfx/1359/1359-preview.mp3');
-
-    function auth() {
-        const val = document.getElementById('pw').value;
-        if(val === "1234") {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            init();
-        } else if(val === "4321") {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('flag-page').style.display = 'flex';
-        } else { alert("Incorrect Code!"); }
-    }
-
-    function init() {
-        let id = localStorage.getItem('s_pid') || Math.random().toString(36).substring(2,6).toUpperCase();
-        localStorage.setItem('s_pid', id);
-        peer = new Peer(id);
-        peer.on('open', (myId) => { document.getElementById('p-status').innerText = "ID: " + myId; });
-        peer.on('connection', c => { conn = c; handleConn(); });
-        peer.on('call', call => {
-            ring.play();
-            if(confirm("Incoming Call... Answer?")) {
-                ring.pause();
-                navigator.mediaDevices.getUserMedia({audio:true}).then(s => {
-                    activeCall = call; lStream = s;
-                    document.getElementById('call-ui').style.display = 'flex';
-                    call.answer(s);
-                    call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.play(); });
-                    call.on('close', () => hangupUI());
-                });
-            } else { ring.pause(); }
-        });
-    }
-
-    function link() {
-        let tid = document.getElementById('fid').value.toUpperCase();
-        if(tid) { conn = peer.connect(tid); handleConn(); }
-    }
-
-    function handleConn() {
-        conn.on('open', () => { document.getElementById('p-status').innerText = "Online ✅"; });
-        conn.on('data', d => { if(d.v) addAudio(d.v, 'fr'); else addMsg(d, 'fr'); });
-    }
-
-    function send() {
-        let i = document.getElementById('m-in');
-        if(conn && conn.open && i.value) {
-            conn.send(i.value);
-            addMsg(i.value, 'my');
-            i.value = "";
-        }
-    }
-
-    const vBtn = document.getElementById('v-btn');
-    ['mousedown', 'touchstart'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); startV(); }));
-    ['mouseup', 'touchend'].forEach(e => vBtn.addEventListener(e, (ev) => { ev.preventDefault(); stopV(); }));
-
-    async function startV() {
-        try {
-            lStream = await navigator.mediaDevices.getUserMedia({audio:true});
-            mediaRec = new MediaRecorder(lStream);
-            chunks = [];
-            mediaRec.ondataavailable = e => chunks.push(e.data);
-            mediaRec.start();
-            vBtn.style.background = "#ea4335";
-        } catch(e) { console.error(e); }
-    }
-
-    function stopV() {
-        if(!mediaRec || mediaRec.state === "inactive") return;
-        mediaRec.stop();
-        vBtn.style.background = "#54656f";
-        mediaRec.onstop = () => {
-            const blob = new Blob(chunks, {type: 'audio/webm'});
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.
+<script src="script.js"></script>
+</body>
+</html>
